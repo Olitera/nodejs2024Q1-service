@@ -7,7 +7,12 @@ export interface User {
   updatedAt: number;
 }
 
-export interface CreateUserReqData {
+export interface CreateUserDto {
   login: string,
   password: string
+}
+
+export interface UpdatePasswordDto {
+  oldPassword: string;
+  newPassword: string;
 }
