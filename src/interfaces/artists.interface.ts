@@ -3,3 +3,10 @@ export interface Artist {
   name: string;
   grammy: boolean;
 }
+
+export interface CreateArtistDto {
+  name: string;
+  grammy: boolean;
+}
+
+

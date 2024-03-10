@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Artist } from '../interfaces/artists.interface';
+import { Artist, CreateArtistDto } from '../interfaces/artists.interface';
 import { v4 as uuidV4 } from 'uuid';
 
 @Injectable()
 export class ArtistsService{
   private artists: Artist[] = [];
 
-  createArtist() {
+  createArtist(data: CreateArtistDto) {
     const artist: Artist = {
-      grammy: false,
+      grammy: data.grammy,
       id: uuidV4(),
-      name: ''
+      name: data.name
     };
     this.artists.push(artist);
     return artist;
@@ -24,7 +24,7 @@ export class ArtistsService{
     return this.artists.find((artist) => artist.id === id);
   }
 
-  updateArtistInfo(id: string, artistNewInfo: Artist) {
+  updateArtistInfo(id: string, artistNewInfo: CreateArtistDto) {
     const artist = this.artists.find((artist) => artist.id === id);
     if(artist) {
       artist.name = artistNewInfo.name;
