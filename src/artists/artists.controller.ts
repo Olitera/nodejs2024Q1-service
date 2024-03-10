@@ -4,12 +4,16 @@ import { CreateArtistDto } from '../interfaces/artists.interface';
 import { Response } from 'express';
 import { validate } from 'uuid';
 import { StatusCodes } from 'http-status-codes';
+import { TracksService } from 'src/tracks/tracks..service';
 
 
 @Controller('artist')
 export class ArtistsController {
 
-  constructor(private artistsService: ArtistsService) {}
+  constructor(
+    private artistsService: ArtistsService,
+    private tracksService: TracksService
+              ) {}
 
   @Post()
   createArtist(@Body() body: CreateArtistDto, @Res({ passthrough: true }) res: Response) {
@@ -45,10 +49,10 @@ export class ArtistsController {
       res.status(StatusCodes.BAD_REQUEST).send('Artist id is invalid');
       return;
     }
-    // if (!body?.name || !body?.grammy || typeof body?.name !== 'string') {
-    //   res.status(StatusCodes.BAD_REQUEST).send('Artist dto is invalid');
-    //   return;
-    // }
+    if (typeof body?.grammy !== 'boolean' || typeof body?.name !== 'string') {
+      res.status(StatusCodes.BAD_REQUEST).send('Artist dto is invalid');
+      return;
+    }
     if (!this.artistsService.getArtistById(id)) {
       res.status(StatusCodes.NOT_FOUND).send('Artist does not exist');
       return;
@@ -67,6 +71,7 @@ export class ArtistsController {
       return;
     }
     this.artistsService.deleteArtistById(id);
+    this.tracksService.deleteArtistId(id)
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }
