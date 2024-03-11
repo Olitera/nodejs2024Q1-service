@@ -28,7 +28,9 @@ export class UsersController {
     @Res({ passthrough: true }) res: Response,
   ): Partial<User> {
     if (!body?.login || !body?.password) {
-      res.status(StatusCodes.BAD_REQUEST).send();
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .send('Required fields are not filled in');
       return;
     }
     const user = this.usersService.createUser(body);
@@ -52,10 +54,10 @@ export class UsersController {
     @Res({ passthrough: true }) res: Response,
   ) {
     if (!validate(id)) {
-      res.status(StatusCodes.BAD_REQUEST).send();
+      res.status(StatusCodes.BAD_REQUEST).send('User id is invalid');
       return;
     } else if (!this.usersService.getUserById(id)) {
-      res.status(StatusCodes.NOT_FOUND).send();
+      res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;
     } else {
       return this.usersService.getUserById(id);
@@ -77,11 +79,11 @@ export class UsersController {
       return;
     }
     if (!this.usersService.getUserById(id)) {
-      res.status(StatusCodes.NOT_FOUND).send();
+      res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;
     }
     if (this.usersService.getUserById(id)?.password !== body?.oldPassword) {
-      res.status(StatusCodes.FORBIDDEN).send();
+      res.status(StatusCodes.FORBIDDEN).send('Password is wrong');
       return;
     }
     const user = this.usersService.updateUserPassword(id, body);
@@ -101,7 +103,7 @@ export class UsersController {
       return;
     }
     if (!this.usersService.getUserById(id)) {
-      res.status(StatusCodes.NOT_FOUND).send();
+      res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;
     }
     this.usersService.deleteUserById(id);

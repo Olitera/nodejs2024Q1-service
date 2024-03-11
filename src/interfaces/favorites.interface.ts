@@ -8,7 +8,7 @@ export interface Favorites {
   tracks: string[];
 }
 
-export interface FavoritesResponse{
+export interface FavoritesResponse {
   artists: Artist[];
   albums: Album[];
   tracks: Track[];
