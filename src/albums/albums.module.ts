@@ -6,6 +6,7 @@ import { TracksModule } from '../tracks/tracks.module';
 @Module({
   controllers: [AlbumsController],
   providers: [AlbumsService],
-  imports: [TracksModule]
+  imports: [TracksModule],
+  exports: [AlbumsService],
 })
 export class AlbumsModule {}

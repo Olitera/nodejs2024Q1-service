@@ -11,7 +11,7 @@ export class AlbumsService {
       artistId: data.artistId,
       id: uuidV4(),
       name: data.name,
-      year: data.year
+      year: data.year,
     };
     this.albums.push(album);
     return album;
@@ -27,24 +27,29 @@ export class AlbumsService {
 
   updateAlbumInfo(id: string, albumNewInfo: CreateAlbumDto) {
     const album = this.albums.find((album) => album.id === id);
-    if(album) {
+    if (album) {
       album.name = albumNewInfo.name;
       album.year = albumNewInfo.year;
       album.artistId = albumNewInfo.artistId;
     }
-    return album
+    return album;
   }
 
   deleteAlbumById(id: string) {
     const album = this.albums.find((album) => album.id === id);
-    if(album) {
+    if (album) {
       this.albums = this.albums.filter((album) => album.id !== id);
     }
   }
 
   deleteArtistId(artistId: string) {
     const albums = this.albums.filter((album) => album.artistId === artistId);
-    albums.forEach(album=> this.updateAlbumInfo(album.id, { artistId: null, name: album.name, year: album.year })
-    )
-    }
+    albums.forEach((album) =>
+      this.updateAlbumInfo(album.id, {
+        artistId: null,
+        name: album.name,
+        year: album.year,
+      }),
+    );
+  }
 }

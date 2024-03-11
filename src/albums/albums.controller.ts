@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Res,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { validate } from 'uuid';
 import { StatusCodes } from 'http-status-codes';
@@ -6,19 +15,22 @@ import { AlbumsService } from 'src/albums/albums.service';
 import { CreateAlbumDto } from 'src/interfaces/albums.interface';
 import { TracksService } from 'src/tracks/tracks.service';
 
-
 @Controller('album')
 export class AlbumsController {
-
   constructor(
     private albumsService: AlbumsService,
-    private tracksService: TracksService
+    private tracksService: TracksService,
   ) {}
 
   @Post()
-  createAlbum(@Body() body: CreateAlbumDto, @Res({ passthrough: true }) res: Response) {
+  createAlbum(
+    @Body() body: CreateAlbumDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!body?.name || !body?.year) {
-      res.status(StatusCodes.BAD_REQUEST).send('Required fields are not filled in');
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .send('Required fields are not filled in');
       return;
     } else {
       return this.albumsService.createAlbum(body);
@@ -31,7 +43,10 @@ export class AlbumsController {
   }
 
   @Get(':id')
-  getAlbumById(@Param('id') id: string, @Res({ passthrough: true }) res: Response) {
+  getAlbumById(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
@@ -44,12 +59,16 @@ export class AlbumsController {
   }
 
   @Put(':id')
-  updateAlbumInfo(@Param('id') id: string, @Body() body: CreateAlbumDto, @Res({ passthrough: true }) res: Response,) {
+  updateAlbumInfo(
+    @Param('id') id: string,
+    @Body() body: CreateAlbumDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
     }
-    if (typeof body?.name !== 'string' || typeof body?.year !== "number") {
+    if (typeof body?.name !== 'string' || typeof body?.year !== 'number') {
       res.status(StatusCodes.BAD_REQUEST).send('Album dto is invalid');
       return;
     }
@@ -71,7 +90,7 @@ export class AlbumsController {
       return;
     }
     this.albumsService.deleteAlbumById(id);
-    this.tracksService.deleteAlbumId(id)
+    this.tracksService.deleteAlbumId(id);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }
