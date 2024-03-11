@@ -49,4 +49,10 @@ export class TracksService{
     tracks.forEach(track=> this.updateTrackInfo(track.id, { artistId: null, name: track.name, duration: track.duration, albumId: track.albumId })
     )
     }
+
+  deleteAlbumId(albumId: string) {
+    const tracks = this.tracks.filter((track) => track.albumId === albumId);
+    tracks.forEach(track=> this.updateTrackInfo(track.id, { artistId: track.artistId, name: track.name, duration: track.duration, albumId: null })
+    )
+  }
 }

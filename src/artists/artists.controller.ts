@@ -4,7 +4,7 @@ import { CreateArtistDto } from '../interfaces/artists.interface';
 import { Response } from 'express';
 import { validate } from 'uuid';
 import { StatusCodes } from 'http-status-codes';
-import { TracksService } from 'src/tracks/tracks..service';
+import { TracksService } from 'src/tracks/tracks.service';
 
 
 @Controller('artist')

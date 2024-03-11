@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/co
 import { Response } from 'express';
 import { validate } from 'uuid';
 import { StatusCodes } from 'http-status-codes';
-import { TracksService } from 'src/tracks/tracks..service';
+import { TracksService } from 'src/tracks/tracks.service';
 import { CreateTrackDto } from 'src/interfaces/tracks.interface';
 
 
