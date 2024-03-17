@@ -5,10 +5,13 @@ import {
   User,
 } from '../interfaces/user.interface';
 import { v4 as uuidV4 } from 'uuid';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
   private users: User[] = [];
+
+  constructor(private prisma: PrismaService) {}
 
   createUser(data: CreateUserDto) {
     const date = Date.now();
@@ -24,8 +27,9 @@ export class UsersService {
     return user;
   }
 
-  getAllUsers() {
-    return this.users;
+  async getAllUsers() {
+    // return this.users;
+    return await this.prisma.user.findMany()
   }
 
   getUserById(id: string) {

@@ -8,24 +8,32 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - custom_network
 
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_app
     ports:
-      - "5432:5432"
+      - "4000:4000"
     volumes:
-      - .:/usr/src/app
-    depends_on:
-      - postgres
+      - .:/app
+#    environment:
+#      - DATABASE_URL=postgresql://myuser:mypassword@postgres:5432/mydatabase
+#    depends_on:
+#      - postgres
     networks:
       - custom_network
 
 networks:
   custom_network:
+    driver: bridge
+
 
 volumes:
   postgres_data:
