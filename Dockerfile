@@ -7,7 +7,7 @@ ENV POSTGRES_DB=mydatabase \
     POSTGRES_PASSWORD=mypassword
 
 # Optionally, you can expose the PostgreSQL port (5432) if needed
-# EXPOSE 5432
+EXPOSE 5432
 
 # Optionally, you can add initialization scripts or custom configurations here
 # COPY init.sql /docker-entrypoint-initdb.d/
