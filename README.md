@@ -65,6 +65,15 @@ npm run lint
 npm run format
 ```
 
+### Build the Docker images using the provided Dockerfile
+
+docker-compose build
+
+### Once the build is complete, start the application using Docker Compose:
+
+docker-compose up
+
+
 ### Debugging in VSCode
 
 Press <kbd>F5</kbd> to debug.

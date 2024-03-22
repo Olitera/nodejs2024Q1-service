@@ -23,17 +23,17 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  createUser(
+  async createUser(
     @Body() body: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
-  ): Partial<User> {
+  ) {
     if (!body?.login || !body?.password) {
       res
         .status(StatusCodes.BAD_REQUEST)
         .send('Required fields are not filled in');
       return;
     }
-    const user = this.usersService.createUser(body);
+    const user = await this.usersService.createUser(body);
     return {
       id: user.id,
       login: user.login,
@@ -65,7 +65,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  updateUser(
+  async updateUser(
     @Param('id') id: string,
     @Body() body: UpdatePasswordDto,
     @Res({ passthrough: true }) res: Response,
@@ -78,15 +78,16 @@ export class UsersController {
       res.status(StatusCodes.BAD_REQUEST).send('User dto is invalid');
       return;
     }
-    if (!this.usersService.getUserById(id)) {
+    const us = await this.usersService.getUserById(id);
+    if (!us) {
       res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;
     }
-    if (this.usersService.getUserById(id)?.password !== body?.oldPassword) {
+    if (us?.password !== body?.oldPassword) {
       res.status(StatusCodes.FORBIDDEN).send('Password is wrong');
       return;
     }
-    const user = this.usersService.updateUserPassword(id, body);
+    const user = await this.usersService.updateUserPassword(id, body);
     return {
       id: user.id,
       login: user.login,
@@ -97,16 +98,17 @@ export class UsersController {
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') id: string, @Res() res: Response) {
+  async deleteUser(@Param('id') id: string, @Res() res: Response) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('User id is invalid');
       return;
     }
-    if (!this.usersService.getUserById(id)) {
+    const us = await this.usersService.getUserById(id)
+    if (!us) {
       res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;
     }
-    this.usersService.deleteUserById(id);
+    await this.usersService.deleteUserById(id);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }

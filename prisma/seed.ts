@@ -16,7 +16,7 @@ async function main() {
       password: '',
       version: 1,
       createdAt: new Date(),
-      updatedAt: 1
+      updatedAt: new Date()
     },
   });
 

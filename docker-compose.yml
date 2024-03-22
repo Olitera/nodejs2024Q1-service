@@ -16,6 +16,7 @@ services:
       - custom_network
 
   app:
+    container_name: app
     build:
       context: .
       dockerfile: Dockerfile_app

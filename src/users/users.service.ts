@@ -13,41 +13,49 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {}
 
-  createUser(data: CreateUserDto) {
+async createUser(data: CreateUserDto) {
     const date = Date.now();
-    const user: User = {
-      createdAt: date,
-      id: uuidV4(),
-      login: data.login,
-      password: data.password,
-      updatedAt: date,
-      version: 1,
-    };
-    this.users.push(user);
+    const user = await this.prisma.user.create({
+      data: {
+        createdAt: new Date(date),
+        id: uuidV4(),
+        login: data.login,
+        password: data.password,
+        updatedAt: new Date(date),
+        version: 1,
+      }
+    })
+  // @ts-ignore
+  user.updatedAt = user.updatedAt.getTime()
+  // @ts-ignore
+  user.createdAt = user.createdAt.getTime()
     return user;
   }
 
   async getAllUsers() {
-    // return this.users;
-    return await this.prisma.user.findMany()
+    return this.prisma.user.findMany();
   }
 
-  getUserById(id: string) {
-    return this.users.find((user) => user.id === id);
+  async getUserById(id: string) {
+    return this.prisma.user.findUnique({where: {id}});
   }
 
-  updateUserPassword(id: string, passwords: UpdatePasswordDto) {
-    const user = this.users.find((user) => user.id === id);
+  async updateUserPassword(id: string, passwords: UpdatePasswordDto) {
+    const user = await this.prisma.user.findUnique({where: {id}});
     if (user.password === passwords.oldPassword) {
       user.password = passwords.newPassword;
+      await this.prisma.user.update({data: {
+        password: passwords.newPassword,
+        version: user.version + 1
+        }, where: {id} })
     }
     return user;
   }
 
-  deleteUserById(id: string) {
-    const user = this.users.find((user) => user.id === id);
+  async deleteUserById(id: string) {
+    const user = await this.prisma.user.findUnique({where: {id}});
     if (user) {
-      this.users = this.users.filter((user) => user.id !== id);
+      await this.prisma.user.delete({where: {id}})
     }
   }
 }
