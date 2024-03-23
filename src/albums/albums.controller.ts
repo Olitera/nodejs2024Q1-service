@@ -93,8 +93,8 @@ export class AlbumsController {
       res.status(StatusCodes.NOT_FOUND).send('Album does not exist');
       return;
     }
-   await this.albumsService.deleteAlbumById(id);
-    this.tracksService.deleteAlbumId(id);
+    await this.albumsService.deleteAlbumById(id);
+    await this.tracksService.deleteAlbumId(id);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }

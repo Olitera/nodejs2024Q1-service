@@ -12,7 +12,6 @@ import { UsersService } from './users.service';
 import {
   CreateUserDto,
   UpdatePasswordDto,
-  User,
 } from 'src/interfaces/user.interface';
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
@@ -57,7 +56,7 @@ export class UsersController {
       res.status(StatusCodes.BAD_REQUEST).send('User id is invalid');
       return;
     }
-    const user = await this.usersService.getUserById(id)
+    const user = await this.usersService.getUserById(id);
     if (!user) {
       res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;
@@ -105,7 +104,7 @@ export class UsersController {
       res.status(StatusCodes.BAD_REQUEST).send('User id is invalid');
       return;
     }
-    const us = await this.usersService.getUserById(id)
+    const us = await this.usersService.getUserById(id);
     if (!us) {
       res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;

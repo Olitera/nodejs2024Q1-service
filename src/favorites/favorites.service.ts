@@ -6,6 +6,7 @@ import {
 import { TracksService } from 'src/tracks/tracks.service';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class FavoritesService {
@@ -13,6 +14,7 @@ export class FavoritesService {
     private trackService: TracksService,
     private albumService: AlbumsService,
     private artistService: ArtistsService,
+    private prisma: PrismaService,
   ) {}
 
   private favorites: Favorites = {
@@ -21,19 +23,24 @@ export class FavoritesService {
     tracks: [],
   };
 
-   async getAllFavorites() {
-     const favorites: FavoritesResponse = {
-      albums: await Promise.all(this.favorites.albums
-        .map(async (id) => await this.albumService.getAlbumById(id))
-        .filter((el) => el)),
-      artists: await Promise.all(this.favorites.artists
-        .map(async (id) =>  await this.artistService.getArtistById(id))
-        .filter((el) => el)),
-      tracks: this.favorites.tracks
-        .map((id) => this.trackService.getTrackById(id))
-        .filter((el) => el),
+  async getAllFavorites() {
+    const favorites: FavoritesResponse = {
+      albums: await Promise.all(
+        this.favorites.albums
+          .map(async (id) => await this.albumService.getAlbumById(id))
+          .filter((el) => el),
+      ),
+      artists: await Promise.all(
+        this.favorites.artists
+          .map(async (id) => await this.artistService.getArtistById(id))
+          .filter((el) => el),
+      ),
+      tracks: await Promise.all(
+        this.favorites.tracks
+          .map(async (id) => await this.trackService.getTrackById(id))
+          .filter((el) => el),
+      ),
     };
-
     return favorites;
   }
 

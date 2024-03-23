@@ -96,7 +96,7 @@ export class ArtistsController {
       return;
     }
     await this.artistsService.deleteArtistById(id);
-    this.tracksService.deleteArtistId(id);
+    await this.tracksService.deleteArtistId(id);
     await this.albumsService.deleteArtistId(id);
     res.status(StatusCodes.NO_CONTENT).send();
     return;

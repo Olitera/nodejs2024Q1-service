@@ -1,70 +1,87 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidV4 } from 'uuid';
-import { CreateTrackDto, Track } from '../interfaces/tracks.interface';
+import { CreateTrackDto } from '../interfaces/tracks.interface';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TracksService {
-  private tracks: Track[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  createTrack(data: CreateTrackDto) {
-    const track: Track = {
-      albumId: data.albumId,
-      artistId: data.artistId,
-      duration: data.duration,
-      id: uuidV4(),
-      name: data.name,
-    };
-    this.tracks.push(track);
+  async createTrack(data: CreateTrackDto) {
+    const track = await this.prisma.track.create({
+      data: {
+        albumId: data.albumId,
+        artistId: data.artistId,
+        duration: data.duration,
+        id: uuidV4(),
+        name: data.name,
+      },
+    });
     return track;
   }
 
-  getAllTracks() {
-    return this.tracks;
+  async getAllTracks() {
+    return this.prisma.track.findMany();
   }
 
-  getTrackById(id: string) {
-    return this.tracks.find((track) => track.id === id);
+  async getTrackById(id: string) {
+    return this.prisma.track.findUnique({ where: { id } });
   }
 
-  updateTrackInfo(id: string, trackNewInfo: CreateTrackDto) {
-    const track = this.tracks.find((track) => track.id === id);
+  async updateTrackInfo(id: string, trackNewInfo: CreateTrackDto) {
+    const track = await this.prisma.track.findUnique({ where: { id } });
     if (track) {
       track.name = trackNewInfo.name;
       track.duration = trackNewInfo.duration;
       track.albumId = trackNewInfo.albumId;
       track.artistId = trackNewInfo.albumId;
+      await this.prisma.track.update({
+        data: {
+          name: trackNewInfo.name,
+          duration: trackNewInfo.duration,
+          albumId: trackNewInfo.albumId,
+          artistId: trackNewInfo.artistId,
+        },
+        where: { id },
+      });
     }
     return track;
   }
 
-  deleteTrackById(id: string) {
-    const track = this.tracks.find((track) => track.id === id);
+  async deleteTrackById(id: string) {
+    const track = await this.prisma.track.findUnique({ where: { id } });
     if (track) {
-      this.tracks = this.tracks.filter((track) => track.id !== id);
+      await this.prisma.track.delete({ where: { id } });
     }
   }
 
-  deleteArtistId(artistId: string) {
-    const tracks = this.tracks.filter((track) => track.artistId === artistId);
-    tracks.forEach((track) =>
-      this.updateTrackInfo(track.id, {
-        artistId: null,
-        name: track.name,
-        duration: track.duration,
-        albumId: track.albumId,
-      }),
-    );
+  async deleteArtistId(artistId: string) {
+    const tracks = await this.prisma.track.findMany();
+    tracks.forEach((track) => {
+      if (track.artistId === artistId) {
+        this.updateTrackInfo(track.id, {
+          artistId: null,
+          name: track.name,
+          duration: track.duration,
+          albumId: track.albumId,
+        })
+      }
+    }
+    )
   }
 
-  deleteAlbumId(albumId: string) {
-    const tracks = this.tracks.filter((track) => track.albumId === albumId);
-    tracks.forEach((track) =>
-      this.updateTrackInfo(track.id, {
-        artistId: track.artistId,
-        name: track.name,
-        duration: track.duration,
-        albumId: null,
-      }),
+  async deleteAlbumId(albumId: string) {
+    const tracks = await this.prisma.track.findMany();
+    tracks.forEach((track) => {
+      if(track.albumId === albumId) {
+        this.updateTrackInfo(track.id, {
+          artistId: track.artistId,
+          name: track.name,
+          duration: track.duration,
+          albumId: null,
+        })
+      }
+      }
     );
   }
 }

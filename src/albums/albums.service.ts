@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidV4 } from 'uuid';
-import { CreateAlbumDto, Album } from '../interfaces/albums.interface';
+import { CreateAlbumDto } from '../interfaces/albums.interface';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AlbumsService {
-  private albums: Album[] = [];
-
   constructor(private prisma: PrismaService) {}
 
   async createAlbum(data: CreateAlbumDto) {
@@ -15,9 +13,9 @@ export class AlbumsService {
         artistId: data.artistId,
         id: uuidV4(),
         name: data.name,
-        year: data.year
-      }
-    })
+        year: data.year,
+      },
+    });
     return album;
   }
 
@@ -26,11 +24,11 @@ export class AlbumsService {
   }
 
   async getAlbumById(id: string) {
-    return this.prisma.album.findUnique({where: {id}});
+    return this.prisma.album.findUnique({ where: { id } });
   }
 
   async updateAlbumInfo(id: string, albumNewInfo: CreateAlbumDto) {
-    const album = await this.prisma.album.findUnique({where: {id}});
+    const album = await this.prisma.album.findUnique({ where: { id } });
     if (album) {
       album.name = albumNewInfo.name;
       album.year = albumNewInfo.year;
@@ -39,29 +37,32 @@ export class AlbumsService {
         data: {
           name: albumNewInfo.name,
           year: albumNewInfo.year,
-          artistId: albumNewInfo.artistId
+          artistId: albumNewInfo.artistId,
         },
-        where: {id}
-      })
+        where: { id },
+      });
     }
     return album;
   }
 
   async deleteAlbumById(id: string) {
-    const album = await this.prisma.album.findUnique({where: {id}});
+    const album = await this.prisma.album.findUnique({ where: { id } });
     if (album) {
-      await this.prisma.album.delete({where: {id}});
+      await this.prisma.album.delete({ where: { id } });
     }
   }
 
   async deleteArtistId(artistId: string) {
     const albums = await this.prisma.album.findMany();
-    albums.forEach((album) =>
-      this.updateAlbumInfo(album.id, {
-        artistId: null,
-        name: album.name,
-        year: album.year,
-      }),
-    );
+    albums.forEach((album) => {
+      if(album.artistId === artistId) {
+        this.updateAlbumInfo(album.id, {
+          artistId: null,
+          name: album.name,
+          year: album.year,
+        })
+      }
+    }
+    )
   }
 }

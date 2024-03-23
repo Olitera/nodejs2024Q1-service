@@ -19,7 +19,7 @@ export class TracksController {
   constructor(private tracksService: TracksService) {}
 
   @Post()
-  createTrack(
+  async createTrack(
     @Body() body: CreateTrackDto,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -29,7 +29,7 @@ export class TracksController {
         .send('Required fields are not filled in');
       return;
     } else {
-      return this.tracksService.createTrack(body);
+      return await this.tracksService.createTrack(body);
     }
   }
 
@@ -39,23 +39,25 @@ export class TracksController {
   }
 
   @Get(':id')
-  getTrackById(
+  async getTrackById(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Track id is invalid');
       return;
-    } else if (!this.tracksService.getTrackById(id)) {
+    }
+    const track = await this.tracksService.getTrackById(id);
+    if (!track) {
       res.status(StatusCodes.NOT_FOUND).send('Track does not exist');
       return;
     } else {
-      return this.tracksService.getTrackById(id);
+      return track;
     }
   }
 
   @Put(':id')
-  updateTrackInfo(
+  async updateTrackInfo(
     @Param('id') id: string,
     @Body() body: CreateTrackDto,
     @Res({ passthrough: true }) res: Response,
@@ -68,24 +70,26 @@ export class TracksController {
       res.status(StatusCodes.BAD_REQUEST).send('Track dto is invalid');
       return;
     }
-    if (!this.tracksService.getTrackById(id)) {
+    const track = await this.tracksService.getTrackById(id);
+    if (!track) {
       res.status(StatusCodes.NOT_FOUND).send('Track does not exist');
       return;
     }
-    return this.tracksService.updateTrackInfo(id, body);
+    return await this.tracksService.updateTrackInfo(id, body);
   }
 
   @Delete(':id')
-  deleteTrack(@Param('id') id: string, @Res() res: Response) {
+  async deleteTrack(@Param('id') id: string, @Res() res: Response) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Track id is invalid');
       return;
     }
-    if (!this.tracksService.getTrackById(id)) {
+    const track = await this.tracksService.getTrackById(id);
+    if (!track) {
       res.status(StatusCodes.NOT_FOUND).send('Track does not exist');
       return;
     }
-    this.tracksService.deleteTrackById(id);
+    await this.tracksService.deleteTrackById(id);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }
