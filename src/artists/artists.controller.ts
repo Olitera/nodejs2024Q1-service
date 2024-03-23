@@ -8,7 +8,7 @@ import {
   Put,
   Res,
 } from '@nestjs/common';
-import { ArtistsService } from '../artists/artists.service';
+import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from '../interfaces/artists.interface';
 import { Response } from 'express';
 import { validate } from 'uuid';
@@ -25,7 +25,7 @@ export class ArtistsController {
   ) {}
 
   @Post()
-  createArtist(
+  async createArtist(
     @Body() body: CreateArtistDto,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -35,7 +35,7 @@ export class ArtistsController {
         .send('Required fields are not filled in');
       return;
     } else {
-      return this.artistsService.createArtist(body);
+      return await this.artistsService.createArtist(body);
     }
   }
 
@@ -45,23 +45,25 @@ export class ArtistsController {
   }
 
   @Get(':id')
-  getArtistById(
+  async getArtistById(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Artist id is invalid');
       return;
-    } else if (!this.artistsService.getArtistById(id)) {
+    }
+    const artist = await this.artistsService.getArtistById(id);
+    if (!artist) {
       res.status(StatusCodes.NOT_FOUND).send('Artist does not exist');
       return;
     } else {
-      return this.artistsService.getArtistById(id);
+      return artist;
     }
   }
 
   @Put(':id')
-  updateArtistInfo(
+  async updateArtistInfo(
     @Param('id') id: string,
     @Body() body: CreateArtistDto,
     @Res({ passthrough: true }) res: Response,
@@ -74,24 +76,26 @@ export class ArtistsController {
       res.status(StatusCodes.BAD_REQUEST).send('Artist dto is invalid');
       return;
     }
-    if (!this.artistsService.getArtistById(id)) {
+    const artist = await this.artistsService.getArtistById(id);
+    if (!artist) {
       res.status(StatusCodes.NOT_FOUND).send('Artist does not exist');
       return;
     }
-    return this.artistsService.updateArtistInfo(id, body);
+    return await this.artistsService.updateArtistInfo(id, body);
   }
 
   @Delete(':id')
-  deleteArtist(@Param('id') id: string, @Res() res: Response) {
+  async deleteArtist(@Param('id') id: string, @Res() res: Response) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Artist id is invalid');
       return;
     }
-    if (!this.artistsService.getArtistById(id)) {
+    const artist = await this.artistsService.getArtistById(id);
+    if (!artist) {
       res.status(StatusCodes.NOT_FOUND).send('Artist does not exist');
       return;
     }
-    this.artistsService.deleteArtistById(id);
+    await this.artistsService.deleteArtistById(id);
     this.tracksService.deleteArtistId(id);
     this.albumsService.deleteArtistId(id);
     res.status(StatusCodes.NO_CONTENT).send();

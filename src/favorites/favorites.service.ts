@@ -21,14 +21,14 @@ export class FavoritesService {
     tracks: [],
   };
 
-  getAllFavorites() {
-    const favorites: FavoritesResponse = {
+   async getAllFavorites() {
+     const favorites: FavoritesResponse = {
       albums: this.favorites.albums
         .map((id) => this.albumService.getAlbumById(id))
         .filter((el) => el),
-      artists: this.favorites.artists
-        .map((id) => this.artistService.getArtistById(id))
-        .filter((el) => el),
+      artists: await Promise.all(this.favorites.artists
+        .map(async (id) =>  await this.artistService.getArtistById(id))
+        .filter((el) => el)),
       tracks: this.favorites.tracks
         .map((id) => this.trackService.getTrackById(id))
         .filter((el) => el),

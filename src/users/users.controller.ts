@@ -49,18 +49,20 @@ export class UsersController {
   }
 
   @Get(':id')
-  getUserById(
+  async getUserById(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('User id is invalid');
       return;
-    } else if (!this.usersService.getUserById(id)) {
+    }
+    const user = await this.usersService.getUserById(id)
+    if (!user) {
       res.status(StatusCodes.NOT_FOUND).send('User does not exist');
       return;
     } else {
-      return this.usersService.getUserById(id);
+      return user;
     }
   }
 
@@ -91,7 +93,7 @@ export class UsersController {
     return {
       id: user.id,
       login: user.login,
-      createdAt: user.createdAt,
+      createdAt: new Date(user.createdAt).getTime(),
       updatedAt: Date.now(),
       version: user.version + 1,
     };
