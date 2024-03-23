@@ -23,9 +23,9 @@ export class FavoritesService {
 
    async getAllFavorites() {
      const favorites: FavoritesResponse = {
-      albums: this.favorites.albums
-        .map((id) => this.albumService.getAlbumById(id))
-        .filter((el) => el),
+      albums: await Promise.all(this.favorites.albums
+        .map(async (id) => await this.albumService.getAlbumById(id))
+        .filter((el) => el)),
       artists: await Promise.all(this.favorites.artists
         .map(async (id) =>  await this.artistService.getArtistById(id))
         .filter((el) => el)),
