@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Favorites" ALTER COLUMN "id" SET DEFAULT 1,
+ALTER COLUMN "id" DROP DEFAULT;
+DROP SEQUENCE "Favorites_id_seq";
