@@ -21,7 +21,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "prisma:migrate": "docker exec app npx prisma migrate dev --name init",
-    "prisma:generate": "docker exec app npx prisma generate"
+    "prisma:generate": "docker exec app npx prisma generate",
+    "docker": "docker-compose up",
+    "docker-push": "docker push olitera/nodejs2024q1_service",
+    "docker-tag": "docker tag nodejs2024q1-service-app olitera/nodejs2024q1_service",
+    "docker-size": "docker images"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.3",
