@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, Param, Post, Res } from '@nestjs/common';
-import { FavoritesService } from '../favorites/favorites.service';
+import { FavoritesService } from './favorites.service';
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { validate } from 'uuid';
@@ -30,16 +30,19 @@ export class FavoritesController {
       res.status(StatusCodes.BAD_REQUEST).send('Track id is invalid');
       return;
     }
-    const track = await this.tracksService.getTrackById(trackId)
+    const track = await this.tracksService.getTrackById(trackId);
     if (!track) {
       res.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Track does not exist');
       return;
-     }
-   return this.favoritesService.addTrackToFavs(trackId);
+    }
+    return this.favoritesService.addTrackToFavs(trackId);
   }
 
   @Delete('track/:id')
-  async deleteTractFromFavs(@Param('id') trackId: string, @Res() res: Response) {
+  async deleteTractFromFavs(
+    @Param('id') trackId: string,
+    @Res() res: Response,
+  ) {
     if (!validate(trackId)) {
       res.status(StatusCodes.BAD_REQUEST).send('Track id is invalid');
       return;
@@ -63,7 +66,7 @@ export class FavoritesController {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
     }
-    const  album = await this.albumService.getAlbumById(albumId);
+    const album = await this.albumService.getAlbumById(albumId);
     if (!album) {
       res.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Album does not exist');
       return;
@@ -72,7 +75,10 @@ export class FavoritesController {
   }
 
   @Delete('album/:id')
-  async deleteAlbumFromFavs(@Param('id') albumId: string, @Res() res: Response) {
+  async deleteAlbumFromFavs(
+    @Param('id') albumId: string,
+    @Res() res: Response,
+  ) {
     if (!validate(albumId)) {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
@@ -108,7 +114,10 @@ export class FavoritesController {
   }
 
   @Delete('artist/:id')
-  async deleteArtistFromFavs(@Param('id') artistId: string, @Res() res: Response) {
+  async deleteArtistFromFavs(
+    @Param('id') artistId: string,
+    @Res() res: Response,
+  ) {
     if (!validate(artistId)) {
       res.status(StatusCodes.BAD_REQUEST).send('Artist id is invalid');
       return;

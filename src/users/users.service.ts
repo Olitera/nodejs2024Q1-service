@@ -19,11 +19,11 @@ export class UsersService {
         version: 1,
       },
     });
-    // @ts-ignore
-    user.updatedAt = user.updatedAt.getTime();
-    // @ts-ignore
-    user.createdAt = user.createdAt.getTime();
-    return user;
+    return {
+      ...user,
+      updatedAt: user.updatedAt.getTime(),
+      createdAt: user.createdAt.getTime(),
+    };
   }
 
   async getAllUsers() {

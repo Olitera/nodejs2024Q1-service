@@ -54,15 +54,16 @@ export class AlbumsService {
 
   async deleteArtistId(artistId: string) {
     const albums = await this.prisma.album.findMany();
-    albums.forEach((album) => {
-      if(album.artistId === artistId) {
-        this.updateAlbumInfo(album.id, {
-          artistId: null,
-          name: album.name,
-          year: album.year,
-        })
-      }
-    }
-    )
+    await Promise.all(
+      albums.map(async (album) => {
+        if (album.artistId === artistId) {
+          await this.updateAlbumInfo(album.id, {
+            artistId: null,
+            name: album.name,
+            year: album.year,
+          });
+        }
+      }),
+    );
   }
 }

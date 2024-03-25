@@ -57,31 +57,33 @@ export class TracksService {
 
   async deleteArtistId(artistId: string) {
     const tracks = await this.prisma.track.findMany();
-    tracks.forEach((track) => {
-      if (track.artistId === artistId) {
-        this.updateTrackInfo(track.id, {
-          artistId: null,
-          name: track.name,
-          duration: track.duration,
-          albumId: track.albumId,
-        })
-      }
-    }
-    )
+    await Promise.all(
+      tracks.map(async (track) => {
+        if (track.artistId === artistId) {
+          await this.updateTrackInfo(track.id, {
+            artistId: null,
+            name: track.name,
+            duration: track.duration,
+            albumId: track.albumId,
+          });
+        }
+      }),
+    );
   }
 
   async deleteAlbumId(albumId: string) {
     const tracks = await this.prisma.track.findMany();
-    tracks.forEach((track) => {
-      if(track.albumId === albumId) {
-        this.updateTrackInfo(track.id, {
-          artistId: track.artistId,
-          name: track.name,
-          duration: track.duration,
-          albumId: null,
-        })
-      }
-      }
+    await Promise.all(
+      tracks.map(async (track) => {
+        if (track.albumId === albumId) {
+          await this.updateTrackInfo(track.id, {
+            artistId: track.artistId,
+            name: track.name,
+            duration: track.duration,
+            albumId: null,
+          });
+        }
+      }),
     );
   }
 }
