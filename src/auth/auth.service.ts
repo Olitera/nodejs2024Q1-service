@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as process from 'process';
 
 @Injectable()
 export class AuthService {
@@ -8,9 +9,21 @@ export class AuthService {
     private jwtService: JwtService) {}
 
 
-
-  async generateJwtToken(payload: any) {
+  generateAccessToken(payload: { userId: string, login: string } ) {
     return this.jwtService.sign(payload);
+  }
+
+  generateRefreshToken(payload: { userId: string, login: string } ) {
+    return this.jwtService.sign(payload, {
+      expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME,
+    });
+  }
+
+  verifyAccessToken(token: string) {
+    return this.jwtService.verify(token);
+  }
+  verifyRefreshToken(token: string) {
+    return this.jwtService.verify(token)
   }
 
 }

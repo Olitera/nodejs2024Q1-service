@@ -3,11 +3,14 @@ import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../interfaces/user.interface';
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private authService: AuthService) {}
 
   @Post('signup')
   async signup(@Body() body: CreateUserDto,
@@ -37,18 +40,51 @@ export class AuthController {
         .send('Required fields are not filled in');
       return
     }
-    const user = await this.usersService.getUserById(body.login);
-    if (!user) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .send('User does not exist');
-      return
-    }
+    const user = await this.usersService.getUserByLogin(body.login);
     if (user.password !== body.password) {
       res
         .status(StatusCodes.FORBIDDEN)
         .send('Password is wrong');
       return
     }
+    return {
+      accessToken: this.authService.generateAccessToken({
+        userId: user.id,
+        login: user.login}),
+      refreshToken: this.authService.generateRefreshToken({
+        userId: user.id,
+        login: user.login
+      })
+    }
   }
+
+  @Post('refresh')
+  async refresh(
+    @Body() body: { refreshToken: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if(!body?.refreshToken) {
+      res
+        .status(StatusCodes.UNAUTHORIZED)
+        .send('No refreshToken');
+      return
+    }
+    const userData = this.authService.verifyRefreshToken(body.refreshToken);
+    if (!userData?.userId) {
+      res
+        .status(StatusCodes.FORBIDDEN)
+        .send('Refresh token is invalid or expired');
+      return
+    }
+    return {
+      accessToken: this.authService.generateAccessToken({
+        userId: userData.userId,
+        login: userData.login
+      }),
+      refreshToken: this.authService.generateRefreshToken({
+        userId: userData.userId,
+        login: userData.login
+      })
+    }
+    }
 }

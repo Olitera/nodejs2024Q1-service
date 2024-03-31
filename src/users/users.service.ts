@@ -34,6 +34,10 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  async getUserByLogin(login: string) {
+    return this.prisma.user.findFirst({ where: { login } });
+  }
+
   async updateUserPassword(id: string, passwords: UpdatePasswordDto) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (user.password === passwords.oldPassword) {
