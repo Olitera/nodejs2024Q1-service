@@ -22,6 +22,7 @@ export class AuthController {
       return;
     }
     const user = await this.usersService.createUser(body);
+    console.log(user);
     return {
       id: user.id,
       login: user.login,
@@ -41,6 +42,7 @@ export class AuthController {
       return
     }
     const user = await this.usersService.getUserByLogin(body.login);
+    console.log(user);
     if (user.password !== body.password) {
       res
         .status(StatusCodes.FORBIDDEN)

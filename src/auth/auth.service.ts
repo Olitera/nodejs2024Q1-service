@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as process from 'process';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -25,5 +26,10 @@ export class AuthService {
   verifyRefreshToken(token: string) {
     return this.jwtService.verify(token)
   }
-
+  // hashPassword(password: string) {
+  //   const saltRounds = process.env.CRYPT_SALT;
+  //   console.log(saltRounds, password)
+  //   console.log(bcrypt)
+  //   // return bcrypt.hash(password, saltRounds);
+  // }
 }
