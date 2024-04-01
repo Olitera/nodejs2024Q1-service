@@ -4,12 +4,14 @@ import { CreateUserDto } from '../interfaces/user.interface';
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { AuthService } from './auth.service';
+import { LoggingService } from 'src/logging/logging.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
     private authService: AuthService,
+    private loggingService: LoggingService,
   ) {}
 
   @Post('signup')
@@ -21,8 +23,10 @@ export class AuthController {
       res
         .status(StatusCodes.BAD_REQUEST)
         .send('Required fields are not filled in');
+      this.loggingService.error('Failed to signup user.', new Error());
       return;
     }
+    this.loggingService.log('User signed up successfully.');
     const user = await this.usersService.createUser(body);
     return {
       id: user.id,
