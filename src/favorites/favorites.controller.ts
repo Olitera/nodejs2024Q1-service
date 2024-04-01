@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, Param, Post, Res } from '@nestjs/common';
-import { FavoritesService } from '../favorites/favorites.service';
+import { FavoritesService } from './favorites.service';
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { validate } from 'uuid';
@@ -22,7 +22,7 @@ export class FavoritesController {
   }
 
   @Post('track/:id')
-  addTrackToFavs(
+  async addTrackToFavs(
     @Param('id') trackId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -30,31 +30,35 @@ export class FavoritesController {
       res.status(StatusCodes.BAD_REQUEST).send('Track id is invalid');
       return;
     }
-    if (!this.tracksService.getTrackById(trackId)) {
+    const track = await this.tracksService.getTrackById(trackId);
+    if (!track) {
       res.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Track does not exist');
       return;
     }
-    this.favoritesService.addTrackToFavs(trackId);
-    return;
+    return this.favoritesService.addTrackToFavs(trackId);
   }
 
   @Delete('track/:id')
-  deleteTractFromFavs(@Param('id') trackId: string, @Res() res: Response) {
+  async deleteTractFromFavs(
+    @Param('id') trackId: string,
+    @Res() res: Response,
+  ) {
     if (!validate(trackId)) {
       res.status(StatusCodes.BAD_REQUEST).send('Track id is invalid');
       return;
     }
-    if (!this.favoritesService.isTrackInFavs(trackId)) {
+    const isTrack = await this.favoritesService.isTrackInFavs(trackId);
+    if (!isTrack) {
       res.status(StatusCodes.NOT_FOUND).send('Track does not in favorite');
       return;
     }
-    this.favoritesService.deleteTrackToFavs(trackId);
+    await this.favoritesService.deleteTrackToFavs(trackId);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }
 
   @Post('album/:id')
-  addAlbumToFavs(
+  async addAlbumToFavs(
     @Param('id') albumId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -62,31 +66,35 @@ export class FavoritesController {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
     }
-    if (!this.albumService.getAlbumById(albumId)) {
+    const album = await this.albumService.getAlbumById(albumId);
+    if (!album) {
       res.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Album does not exist');
       return;
     }
-    this.favoritesService.addAlbumToFavs(albumId);
-    return;
+    return this.favoritesService.addAlbumToFavs(albumId);
   }
 
   @Delete('album/:id')
-  deleteAlbumFromFavs(@Param('id') albumId: string, @Res() res: Response) {
+  async deleteAlbumFromFavs(
+    @Param('id') albumId: string,
+    @Res() res: Response,
+  ) {
     if (!validate(albumId)) {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
     }
-    if (!this.favoritesService.isAlbumInFavs(albumId)) {
+    const isAlbum = await this.favoritesService.isAlbumInFavs(albumId);
+    if (!isAlbum) {
       res.status(StatusCodes.NOT_FOUND).send('Album does not in favorite');
       return;
     }
-    this.favoritesService.deleteAlbumFromFavs(albumId);
+    await this.favoritesService.deleteAlbumFromFavs(albumId);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }
 
   @Post('artist/:id')
-  addArtistToFavs(
+  async addArtistToFavs(
     @Param('id') artistId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -94,27 +102,32 @@ export class FavoritesController {
       res.status(StatusCodes.BAD_REQUEST).send('Artist id is invalid');
       return;
     }
-    if (!this.artistService.getArtistById(artistId)) {
+    const artist = await this.artistService.getArtistById(artistId);
+    if (!artist) {
       res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
         .send('Artist does not exist');
       return;
     }
-    this.favoritesService.addArtistToFavs(artistId);
+    await this.favoritesService.addArtistToFavs(artistId);
     return;
   }
 
   @Delete('artist/:id')
-  deleteArtistFromFavs(@Param('id') artistId: string, @Res() res: Response) {
+  async deleteArtistFromFavs(
+    @Param('id') artistId: string,
+    @Res() res: Response,
+  ) {
     if (!validate(artistId)) {
       res.status(StatusCodes.BAD_REQUEST).send('Artist id is invalid');
       return;
     }
-    if (!this.favoritesService.isArtistInFavs(artistId)) {
+    const isArtist = await this.favoritesService.isArtistInFavs(artistId);
+    if (!isArtist) {
       res.status(StatusCodes.NOT_FOUND).send('Artist does not in favorite');
       return;
     }
-    this.favoritesService.deleteArtistFromFavs(artistId);
+    await this.favoritesService.deleteArtistFromFavs(artistId);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }

@@ -65,6 +65,44 @@ npm run lint
 npm run format
 ```
 
+## Docker
+
+### To start the Docker containers, run:
+
+```
+npm run docker
+```
+
+### To perform database migration using Prisma, run:
+
+```
+npm run prisma:migrate
+```
+
+### To generate Prisma Client, run:
+
+```
+npm run prisma:generate
+```
+
+### To tag the Docker image before pushing, run:
+
+```
+npm run docker-tag
+```
+
+### To push the Docker image to a repository, run:
+
+```
+npm run docker-push
+```
+
+### To view the list of Docker images, run:
+
+```
+npm run docker-size
+```
+
 ### Debugging in VSCode
 
 Press <kbd>F5</kbd> to debug.

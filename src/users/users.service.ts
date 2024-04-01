@@ -1,49 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CreateUserDto,
-  UpdatePasswordDto,
-  User,
-} from '../interfaces/user.interface';
+import { CreateUserDto, UpdatePasswordDto } from '../interfaces/user.interface';
 import { v4 as uuidV4 } from 'uuid';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  createUser(data: CreateUserDto) {
+  async createUser(data: CreateUserDto) {
     const date = Date.now();
-    const user: User = {
-      createdAt: date,
-      id: uuidV4(),
-      login: data.login,
-      password: data.password,
-      updatedAt: date,
-      version: 1,
+    const user = await this.prisma.user.create({
+      data: {
+        createdAt: new Date(date),
+        id: uuidV4(),
+        login: data.login,
+        password: data.password,
+        updatedAt: new Date(date),
+        version: 1,
+      },
+    });
+    return {
+      ...user,
+      updatedAt: user.updatedAt.getTime(),
+      createdAt: user.createdAt.getTime(),
     };
-    this.users.push(user);
-    return user;
   }
 
-  getAllUsers() {
-    return this.users;
+  async getAllUsers() {
+    return this.prisma.user.findMany();
   }
 
-  getUserById(id: string) {
-    return this.users.find((user) => user.id === id);
+  async getUserById(id: string) {
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
-  updateUserPassword(id: string, passwords: UpdatePasswordDto) {
-    const user = this.users.find((user) => user.id === id);
+  async getUserByLogin(login: string) {
+    return this.prisma.user.findFirst({ where: { login } });
+  }
+
+  async updateUserPassword(id: string, passwords: UpdatePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
     if (user.password === passwords.oldPassword) {
       user.password = passwords.newPassword;
+      await this.prisma.user.update({
+        data: {
+          password: passwords.newPassword,
+          version: user.version + 1,
+        },
+        where: { id },
+      });
     }
     return user;
   }
 
-  deleteUserById(id: string) {
-    const user = this.users.find((user) => user.id === id);
+  async deleteUserById(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
     if (user) {
-      this.users = this.users.filter((user) => user.id !== id);
+      await this.prisma.user.delete({ where: { id } });
     }
   }
 }

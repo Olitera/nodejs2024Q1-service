@@ -23,7 +23,7 @@ export class AlbumsController {
   ) {}
 
   @Post()
-  createAlbum(
+  async createAlbum(
     @Body() body: CreateAlbumDto,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -33,7 +33,7 @@ export class AlbumsController {
         .send('Required fields are not filled in');
       return;
     } else {
-      return this.albumsService.createAlbum(body);
+      return await this.albumsService.createAlbum(body);
     }
   }
 
@@ -43,23 +43,25 @@ export class AlbumsController {
   }
 
   @Get(':id')
-  getAlbumById(
+  async getAlbumById(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
-    } else if (!this.albumsService.getAlbumById(id)) {
+    }
+    const album = await this.albumsService.getAlbumById(id);
+    if (!album) {
       res.status(StatusCodes.NOT_FOUND).send('Album does not exist');
       return;
     } else {
-      return this.albumsService.getAlbumById(id);
+      return album;
     }
   }
 
   @Put(':id')
-  updateAlbumInfo(
+  async updateAlbumInfo(
     @Param('id') id: string,
     @Body() body: CreateAlbumDto,
     @Res({ passthrough: true }) res: Response,
@@ -72,25 +74,27 @@ export class AlbumsController {
       res.status(StatusCodes.BAD_REQUEST).send('Album dto is invalid');
       return;
     }
-    if (!this.albumsService.getAlbumById(id)) {
+    const album = await this.albumsService.getAlbumById(id);
+    if (!album) {
       res.status(StatusCodes.NOT_FOUND).send('Album does not exist');
       return;
     }
-    return this.albumsService.updateAlbumInfo(id, body);
+    return await this.albumsService.updateAlbumInfo(id, body);
   }
 
   @Delete(':id')
-  deleteAlbum(@Param('id') id: string, @Res() res: Response) {
+  async deleteAlbum(@Param('id') id: string, @Res() res: Response) {
     if (!validate(id)) {
       res.status(StatusCodes.BAD_REQUEST).send('Album id is invalid');
       return;
     }
-    if (!this.albumsService.getAlbumById(id)) {
+    const album = await this.albumsService.getAlbumById(id);
+    if (!album) {
       res.status(StatusCodes.NOT_FOUND).send('Album does not exist');
       return;
     }
-    this.albumsService.deleteAlbumById(id);
-    this.tracksService.deleteAlbumId(id);
+    await this.albumsService.deleteAlbumById(id);
+    await this.tracksService.deleteAlbumId(id);
     res.status(StatusCodes.NO_CONTENT).send();
     return;
   }

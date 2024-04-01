@@ -1,0 +1,9 @@
+{
+  "type": "postgres",
+  "host": "postgres",
+  "port": 5432,
+  "username": "myuser",
+  "password": "mypassword",
+  "database": "mydatabase",
+  "synchronize": true
+}

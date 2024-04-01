@@ -1,42 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { Artist, CreateArtistDto } from '../interfaces/artists.interface';
+import { CreateArtistDto } from '../interfaces/artists.interface';
 import { v4 as uuidV4 } from 'uuid';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ArtistsService {
-  private artists: Artist[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  createArtist(data: CreateArtistDto) {
-    const artist: Artist = {
-      grammy: data.grammy,
-      id: uuidV4(),
-      name: data.name,
-    };
-    this.artists.push(artist);
+  async createArtist(data: CreateArtistDto) {
+    const artist = await this.prisma.artist.create({
+      data: {
+        grammy: data.grammy,
+        id: uuidV4(),
+        name: data.name,
+      },
+    });
     return artist;
   }
 
-  getAllArtists() {
-    return this.artists;
+  async getAllArtists() {
+    return this.prisma.artist.findMany();
   }
 
-  getArtistById(id: string) {
-    return this.artists.find((artist) => artist.id === id);
+  async getArtistById(id: string) {
+    return this.prisma.artist.findUnique({ where: { id } });
   }
 
-  updateArtistInfo(id: string, artistNewInfo: CreateArtistDto) {
-    const artist = this.artists.find((artist) => artist.id === id);
+  async updateArtistInfo(id: string, artistNewInfo: CreateArtistDto) {
+    const artist = await this.prisma.artist.findUnique({ where: { id } });
     if (artist) {
       artist.name = artistNewInfo.name;
       artist.grammy = artistNewInfo.grammy;
+      await this.prisma.artist.update({
+        data: {
+          name: artistNewInfo.name,
+          grammy: artistNewInfo.grammy,
+        },
+        where: { id },
+      });
     }
     return artist;
   }
 
-  deleteArtistById(id: string) {
-    const artist = this.artists.find((artist) => artist.id === id);
+  async deleteArtistById(id: string) {
+    const artist = await this.prisma.artist.findUnique({ where: { id } });
     if (artist) {
-      this.artists = this.artists.filter((artist) => artist.id !== id);
+      await this.prisma.artist.delete({ where: { id } });
     }
   }
 }
