@@ -1,4 +1,8 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -11,10 +15,9 @@ export class ProjectMiddleware implements NestMiddleware {
       const token = authHeader.split(' ')[1];
       const decoded = this.jwtService.verify(token);
       req.user = decoded;
-    } else{
-       throw new UnauthorizedException('')
+    } else {
+      throw new UnauthorizedException('');
     }
     next();
   }
-
 }

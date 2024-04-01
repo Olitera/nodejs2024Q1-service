@@ -1,35 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as process from 'process';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  constructor(private jwtService: JwtService) {}
 
-  constructor(
-    private jwtService: JwtService) {}
-
-
-  generateAccessToken(payload: { userId: string, login: string } ) {
+  generateAccessToken(payload: { userId: string; login: string }) {
     return this.jwtService.sign(payload);
   }
 
-  generateRefreshToken(payload: { userId: string, login: string } ) {
+  generateRefreshToken(payload: { userId: string; login: string }) {
     return this.jwtService.sign(payload, {
       expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME,
     });
   }
 
-  verifyAccessToken(token: string) {
+  verifyRefreshToken(token: string) {
     return this.jwtService.verify(token);
   }
-  verifyRefreshToken(token: string) {
-    return this.jwtService.verify(token)
-  }
-  // hashPassword(password: string) {
-  //   const saltRounds = process.env.CRYPT_SALT;
-  //   console.log(saltRounds, password)
-  //   console.log(bcrypt)
-  //   // return bcrypt.hash(password, saltRounds);
-  // }
 }

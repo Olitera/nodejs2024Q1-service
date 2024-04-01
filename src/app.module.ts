@@ -18,7 +18,7 @@ import { ProjectMiddleware } from './middleware/project.middleware';
     AlbumsModule,
     FavoritesModule,
     PrismaModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -27,6 +27,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ProjectMiddleware)
-      .forRoutes('/user', '/artist', '/track', '/album', '/favs');
+      .exclude('/auth/signup', '/auth/login', '/auth/refresh', '/doc','/')
+      .forRoutes('*');
   }
 }

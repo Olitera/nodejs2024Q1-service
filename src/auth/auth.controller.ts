@@ -7,14 +7,16 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-
   constructor(
     private readonly usersService: UsersService,
-    private authService: AuthService) {}
+    private authService: AuthService,
+  ) {}
 
   @Post('signup')
-  async signup(@Body() body: CreateUserDto,
-               @Res({ passthrough: true }) res: Response,) {
+  async signup(
+    @Body() body: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!body?.login || !body?.password) {
       res
         .status(StatusCodes.BAD_REQUEST)
@@ -22,7 +24,6 @@ export class AuthController {
       return;
     }
     const user = await this.usersService.createUser(body);
-    console.log(user);
     return {
       id: user.id,
       login: user.login,
@@ -33,31 +34,30 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() body: CreateUserDto,
-              @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() body: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!body?.login || !body?.password) {
       res
         .status(StatusCodes.BAD_REQUEST)
         .send('Required fields are not filled in');
-      return
+      return;
     }
     const user = await this.usersService.getUserByLogin(body.login);
-    console.log(user);
     if (user.password !== body.password) {
-      res
-        .status(StatusCodes.FORBIDDEN)
-        .send('Password is wrong');
-      return
+      res.status(StatusCodes.FORBIDDEN).send('Password is wrong');
+      return;
     }
-    return {
-      accessToken: this.authService.generateAccessToken({
-        userId: user.id,
-        login: user.login}),
-      refreshToken: this.authService.generateRefreshToken({
-        userId: user.id,
-        login: user.login
-      })
-    }
+    const accessToken = this.authService.generateAccessToken({
+      userId: user.id,
+      login: user.login,
+    });
+    const refreshToken = this.authService.generateRefreshToken({
+      userId: user.id,
+      login: user.login,
+    });
+    res.status(StatusCodes.OK).send({ accessToken, refreshToken });
   }
 
   @Post('refresh')
@@ -65,28 +65,43 @@ export class AuthController {
     @Body() body: { refreshToken: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    if(!body?.refreshToken) {
-      res
-        .status(StatusCodes.UNAUTHORIZED)
-        .send('No refreshToken');
-      return
+    if (!body?.refreshToken) {
+      res.status(StatusCodes.UNAUTHORIZED).send('No refreshToken');
+      return;
     }
-    const userData = this.authService.verifyRefreshToken(body.refreshToken);
+    let userData: { userId: any; login: any } | null;
+    try {
+      userData = this.authService.verifyRefreshToken(body.refreshToken);
+    } catch (error) {
+      res
+        .status(StatusCodes.FORBIDDEN)
+        .send('Refresh token is invalid or expired');
+      return;
+    }
     if (!userData?.userId) {
       res
         .status(StatusCodes.FORBIDDEN)
         .send('Refresh token is invalid or expired');
-      return
+      return;
     }
-    return {
-      accessToken: this.authService.generateAccessToken({
+    let accessToken, refreshToken;
+    try {
+      accessToken = this.authService.generateAccessToken({
         userId: userData.userId,
-        login: userData.login
-      }),
-      refreshToken: this.authService.generateRefreshToken({
+        login: userData.login,
+      });
+      refreshToken = this.authService.generateRefreshToken({
         userId: userData.userId,
-        login: userData.login
-      })
+        login: userData.login,
+      });
+    } catch (error) {
+      res
+        .status(StatusCodes.FORBIDDEN)
+        .send('Refresh token is invalid or expired');
+      return;
     }
-    }
+
+    res.status(StatusCodes.OK).send({ accessToken, refreshToken });
+    return;
+  }
 }
